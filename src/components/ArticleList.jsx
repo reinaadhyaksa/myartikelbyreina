@@ -9,7 +9,6 @@ const ArticleList = ({ articles, title, showFilters = false, showLatest = false,
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    // Mengambil kategori dan membatasi hanya 5 yang ditampilkan
     const categories = [...new Set(articles
         .map(article => {
             const articleCategories = Array.isArray(article.category)
@@ -18,7 +17,7 @@ const ArticleList = ({ articles, title, showFilters = false, showLatest = false,
             return articleCategories.filter(category => category);
         })
         .flat()
-    )].slice(0, 5); // Hanya ambil 5 kategori pertama
+    )].slice(0, 5); 
 
     useEffect(() => {
         let processedArticles = [...articles];

@@ -13,9 +13,9 @@ const SEO = ({
 }) => {
     const siteTitle = "Chronica - Platform Artikel Modern";
     const defaultDescription = "Temukan artikel menarik dan informatif seputar teknologi, lifestyle, edukasi, dan banyak lagi.";
-    const siteUrl = "http://localhost:5173";
-    const siteImage = "http://localhost:5173/images/og-image.jpg";
-    const twitterHandle = "@artikelku";
+    const siteUrl = "https://chronica-rho.vercel.app/";
+    const siteImage = "https://chronica-rho.vercel.app/logo.png";
+    const twitterHandle = "@chronica";
 
     const seo = {
         title: title ? `${title} | ${siteTitle}` : siteTitle,
@@ -50,7 +50,7 @@ const SEO = ({
             name: 'ArtikelKu',
             logo: {
                 '@type': 'ImageObject',
-                url: 'http://localhost:5173//logo.png',
+                url: 'https://chronica-rho.vercel.app/logo.png',
             },
         },
         mainEntityOfPage: {

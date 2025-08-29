@@ -28,19 +28,16 @@ const Navbar = () => {
                     }
                 });
 
-                // Mengurutkan berdasarkan jumlah artikel terbanyak dan mengambil 3 teratas
                 const categoryArray = Object.keys(categoryCount)
                     .map(name => ({
                         name,
                         count: categoryCount[name]
                     }))
-                    .sort((a, b) => b.count - a.count) // Urutkan dari yang terbanyak
-                    .slice(0, 3); // Ambil hanya 3 kategori teratas
-
+                    .sort((a, b) => b.count - a.count) 
+                    .slice(0, 3); 
                 setCategories(categoryArray);
             } catch (error) {
                 console.error('Error fetching categories:', error);
-                // Data fallback juga diubah menjadi 3 kategori teratas
                 setCategories([
                     { name: 'lifestyle', count: 5 },
                     { name: 'edukasi', count: 4 },

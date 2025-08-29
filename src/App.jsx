@@ -7,17 +7,16 @@ import Articles from './pages/Articles';
 import Categories from './pages/Categories';
 import Category from './pages/Category';
 import ArticleDetail from './pages/ArticleDetail';
-import SEO from './components/SEO';
 
 function App() {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "ArtikelKu - Platform Artikel Modern",
-    "url": "https://artikelku.com/",
+    "name": "Chronica - Platform Artikel Modern",
+    "url": "https://chronica-rho.vercel.app/",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "http://localhost:5173/articles?search={search_term_string}",
+      "target": "https://chronica-rho.vercel.app/articles?search={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };

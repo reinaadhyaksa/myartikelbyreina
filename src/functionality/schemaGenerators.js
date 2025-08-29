@@ -35,7 +35,7 @@ export const generateAllCategoriesSchema = (categories) => {
     return {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
-        "name": "Semua Kategori Artikel - ArtikelKu",
+        "name": "Semua Kategori Artikel - Chronica",
         "description": "Telusuri semua kategori artikel yang tersedia di platform kami.",
         "mainEntity": {
             "@type": "ItemList",
