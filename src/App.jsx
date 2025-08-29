@@ -1,16 +1,15 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useState, useEffect, Suspense, lazy } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
-import { LoadingScreen } from './components/Loading';
-
-const Home = lazy(() => import('./pages/Home'));
-const Articles = lazy(() => import('./pages/Articles'));
-const Categories = lazy(() => import('./pages/Categories'));
-const Category = lazy(() => import('./pages/Category'));
-const ArticleDetail = lazy(() => import('./pages/ArticleDetail'));
-const NotFound = lazy(() => import('./pages/NotFound'));
+import Home from './pages/Home';
+import Articles from './pages/Articles';
+import Categories from './pages/Categories';
+import Category from './pages/Category';
+import ArticleDetail from './pages/ArticleDetail';
+import NotFound from './pages/NotFound';
+import { LoadingScreen } from './components/LoadingScreen';
 
 function AppContent() {
   const location = useLocation();
@@ -47,16 +46,14 @@ function AppContent() {
       <ScrollToTop />
       <Navbar />
       <main className="min-h-screen">
-        <Suspense fallback={<LoadingScreen />}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/articles" element={<Articles />} />
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/category/:categoryName" element={<Category />} />
-            <Route path="/article/:id" element={<ArticleDetail />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/articles" element={<Articles />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/category/:categoryName" element={<Category />} />
+          <Route path="/article/:id" element={<ArticleDetail />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </main>
       <Footer />
     </div>

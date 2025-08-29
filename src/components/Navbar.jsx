@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { BASE_API } from '../api';
 
@@ -11,47 +11,43 @@ const Navbar = () => {
         setIsOpen(false);
     }, [location]);
 
-    const fetchCategories = useCallback(async () => {
-        try {
-            const response = await fetch(`${BASE_API}/article`);
-            const articles = await response.json();
-
-            const categoryCount = {};
-            articles.forEach(article => {
-                if (article.category && Array.isArray(article.category)) {
-                    article.category.forEach(cat => {
-                        if (cat) {
-                            categoryCount[cat] = (categoryCount[cat] || 0) + 1;
-                        }
-                    });
-                }
-            });
-
-            const categoryArray = Object.keys(categoryCount)
-                .map(name => ({
-                    name,
-                    count: categoryCount[name]
-                }))
-                .sort((a, b) => b.count - a.count)
-                .slice(0, 3);
-            setCategories(categoryArray);
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-            setCategories([
-                { name: 'lifestyle', count: 5 },
-                { name: 'edukasi', count: 4 },
-                { name: 'teknologi', count: 3 }
-            ]);
-        }
-    }, []);
-
     useEffect(() => {
-        const timer = setTimeout(() => {
-            fetchCategories();
-        }, 500);
+        const fetchCategories = async () => {
+            try {
+                const response = await fetch(`${BASE_API}/article`);
+                const articles = await response.json();
 
-        return () => clearTimeout(timer);
-    }, [fetchCategories]);
+                const categoryCount = {};
+                articles.forEach(article => {
+                    if (article.category && Array.isArray(article.category)) {
+                        article.category.forEach(cat => {
+                            if (cat) {
+                                categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+                            }
+                        });
+                    }
+                });
+
+                const categoryArray = Object.keys(categoryCount)
+                    .map(name => ({
+                        name,
+                        count: categoryCount[name]
+                    }))
+                    .sort((a, b) => b.count - a.count)
+                    .slice(0, 3);
+                setCategories(categoryArray);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+                setCategories([
+                    { name: 'lifestyle', count: 5 },
+                    { name: 'edukasi', count: 4 },
+                    { name: 'teknologi', count: 3 }
+                ]);
+            }
+        };
+
+        fetchCategories();
+    }, []);
 
     return (
         <nav className="bg-white shadow-lg fixed w-full top-0 z-50">

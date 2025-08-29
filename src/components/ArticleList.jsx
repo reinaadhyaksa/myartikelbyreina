@@ -17,7 +17,7 @@ const ArticleList = ({ articles, title, showFilters = false, showLatest = false,
             return articleCategories.filter(category => category);
         })
         .flat()
-    )].slice(0, 5); 
+    )].slice(0, 5);
 
     useEffect(() => {
         let processedArticles = [...articles];
