@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://chronica-rho.vercel.app/sitemap.xml
