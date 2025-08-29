@@ -3,7 +3,7 @@ import { useState, useEffect, Suspense, lazy } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
-import LoadingScreen from './components/Loading'; 
+import { LoadingScreen } from './components/Loading';
 
 const Home = lazy(() => import('./pages/Home'));
 const Articles = lazy(() => import('./pages/Articles'));
