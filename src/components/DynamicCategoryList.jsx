@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { BASE_API } from '../api';
 import { Helmet } from 'react-helmet';
@@ -7,41 +7,43 @@ import { errcategory } from '../data';
 const DynamicCategoryList = () => {
     const [categories, setCategories] = useState([]);
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await fetch(`${BASE_API}/article`);
-                const articles = await response.json();
+    const fetchCategories = useCallback(async () => {
+        try {
+            const response = await fetch(`${BASE_API}/article`);
+            const articles = await response.json();
 
-                const categoryCount = {};
-                articles.forEach(article => {
-                    if (article.category && Array.isArray(article.category)) {
-                        article.category.forEach(cat => {
-                            if (cat) {
-                                const normalizedCat = cat.toLowerCase();
-                                categoryCount[normalizedCat] = (categoryCount[normalizedCat] || 0) + 1;
-                            }
-                        });
-                    }
-                });
+            const categoryCount = {};
+            articles.forEach(article => {
+                if (article.category && Array.isArray(article.category)) {
+                    article.category.forEach(cat => {
+                        if (cat) {
+                            const normalizedCat = cat.toLowerCase();
+                            categoryCount[normalizedCat] = (categoryCount[normalizedCat] || 0) + 1;
+                        }
+                    });
+                }
+            });
 
-                const categoryArray = Object.keys(categoryCount).map(name => ({
-                    name,
-                    count: categoryCount[name],
-                    slug: encodeURIComponent(name.toLowerCase())
-                })).sort((a, b) => b.count - a.count).slice(0, 3);
+            const categoryArray = Object.keys(categoryCount).map(name => ({
+                name,
+                count: categoryCount[name],
+                slug: encodeURIComponent(name.toLowerCase())
+            })).sort((a, b) => b.count - a.count).slice(0, 3);
 
-                setCategories(categoryArray);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-                setCategories([
-                    errcategory
-                ]);
-            }
-        };
-
-        fetchCategories();
+            setCategories(categoryArray);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            setCategories([errcategory]);
+        }
     }, []);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            fetchCategories();
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [fetchCategories]);
 
     return (
         <section className="py-12 bg-gray-50">

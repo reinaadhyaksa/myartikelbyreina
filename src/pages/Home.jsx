@@ -8,15 +8,27 @@ import { fetchArticles } from '../functionality/apiFunctions';
 const Home = () => {
     const [articles, setArticles] = useState([]);
     const [featuredArticles, setFeaturedArticles] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const loadArticles = async () => {
-            const data = await fetchArticles();
-            setArticles(data);
-            setFeaturedArticles(data.slice(0, 3));
+            try {
+                setIsLoading(true);
+                const data = await fetchArticles();
+                setArticles(data);
+                setFeaturedArticles(data.slice(0, 3));
+            } catch (error) {
+                console.error("Failed to load articles:", error);
+            } finally {
+                setIsLoading(false);
+            }
         };
 
-        loadArticles();
+        const timer = setTimeout(() => {
+            loadArticles();
+        }, 100);
+
+        return () => clearTimeout(timer);
     }, []);
 
     return (
@@ -66,7 +78,7 @@ const Home = () => {
 
             <DynamicCategoryList />
 
-            {featuredArticles.length > 0 && (
+            {!isLoading && featuredArticles.length > 0 && (
                 <ArticleList
                     articles={articles}
                     title="Artikel Terbaru"
@@ -74,7 +86,7 @@ const Home = () => {
                 />
             )}
 
-            {articles.length > 0 && (
+            {!isLoading && articles.length > 0 && (
                 <ArticleList
                     articles={articles}
                     title="Artikel Rekomendasi"
