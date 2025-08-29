@@ -1,52 +1,35 @@
-// src/pages/Categories.jsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
+import { fetchCategoriesFromArticles } from '../functionality/apiFunctions';
+import { generateAllCategoriesSchema } from '../functionality/schemaGenerators';
 
 const Categories = () => {
     const [categories, setCategories] = useState([]);
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await fetch('https://api-artikel-delta.vercel.app/article');
-                const articles = await response.json();
-
-                // Extract and count categories
-                const categoryCount = {};
-                articles.forEach(article => {
-                    if (article.category && Array.isArray(article.category)) {
-                        article.category.forEach(cat => {
-                            categoryCount[cat] = (categoryCount[cat] || 0) + 1;
-                        });
-                    }
-                });
-
-                // Convert to array and sort by count
-                const categoryArray = Object.keys(categoryCount).map(name => ({
-                    name,
-                    count: categoryCount[name]
-                })).sort((a, b) => b.count - a.count);
-
-                setCategories(categoryArray);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-                // Fallback categories
-                setCategories([
-                    { name: 'tech', count: 3 },
-                    { name: 'sains', count: 2 },
-                    { name: 'lifestyle', count: 5 },
-                    { name: 'education', count: 4 },
-                    { name: 'health', count: 3 },
-                    { name: 'business', count: 2 }
-                ]);
-            }
+        const loadCategories = async () => {
+            const data = await fetchCategoriesFromArticles();
+            setCategories(data);
         };
 
-        fetchCategories();
+        loadCategories();
     }, []);
+
+    const categorySchema = generateAllCategoriesSchema(categories);
 
     return (
         <div className="pt-20 min-h-screen bg-gray-50">
+            <SEO
+                title="Semua Kategori Artikel - Telusuri Topik Menarik"
+                description="Telusuri semua kategori artikel yang tersedia di platform kami. Temukan artikel berdasarkan topik seperti teknologi, sains, lifestyle, edukasi, kesehatan, dan bisnis."
+                keywords="kategori artikel, teknologi, sains, lifestyle, edukasi, kesehatan, bisnis, topik artikel"
+            />
+
+            <script type="application/ld+json">
+                {JSON.stringify(categorySchema)}
+            </script>
+
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="text-center mb-12" data-aos="fade-up">
                     <h1 className="text-3xl md:text-4xl font-bold mb-4">Semua Kategori</h1>
@@ -64,13 +47,14 @@ const Categories = () => {
                         {categories.map((category, index) => (
                             <Link
                                 key={category.name}
-                                to={`/category/${category.name}`}
+                                to={`/category/${category.slug}`}
                                 className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
                                 data-aos="fade-up"
                                 data-aos-delay={index * 100}
+                                aria-label={`Jelajahi kategori ${category.name} dengan ${category.count} artikel`}
                             >
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-xl font-semibold capitalize">{category.name}</h3>
+                                    <h2 className="text-xl font-semibold capitalize">{category.name}</h2>
                                     <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
                                         {category.count} artikel
                                     </span>

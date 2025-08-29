@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import ArticleCard from './ArticleCard';
+import SEO from './SEO';
 
 const ArticleList = ({ articles, title, showFilters = false, showLatest = false, showRecommended = false }) => {
     const [filteredArticles, setFilteredArticles] = useState(articles);
@@ -8,57 +9,41 @@ const ArticleList = ({ articles, title, showFilters = false, showLatest = false,
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    // Daftar kategori yang diizinkan - hanya sejarah dan pendidikan
-    const allowedCategories = ["sejarah", "pendidikan"];
-
-    // Ekstrak kategori hanya dari yang diizinkan
+    // Mengambil kategori dan membatasi hanya 5 yang ditampilkan
     const categories = [...new Set(articles
         .map(article => {
-            // Pastikan category selalu berupa array
             const articleCategories = Array.isArray(article.category)
                 ? article.category
                 : [article.category];
-
-            // Filter hanya kategori yang diizinkan
-            return articleCategories.filter(category =>
-                category && allowedCategories.includes(category.toLowerCase())
-            );
+            return articleCategories.filter(category => category);
         })
         .flat()
-        // Hapus nilai kosong/null/undefined
-        .filter(category => category)
-    )];
+    )].slice(0, 5); // Hanya ambil 5 kategori pertama
 
-    // Gabungkan useEffect untuk menghindari kondisi race
     useEffect(() => {
         let processedArticles = [...articles];
 
-        // Filter berdasarkan rekomendasi jika diperlukan
         if (showRecommended) {
             processedArticles = processedArticles.filter(article => article.recomendations);
         }
 
-        // Filter berdasarkan kategori yang dipilih
         if (selectedCategory) {
             processedArticles = processedArticles.filter(article => {
-                // Pastikan category selalu berupa array
                 const articleCategories = Array.isArray(article.category)
                     ? article.category
                     : [article.category];
-
                 return articleCategories.includes(selectedCategory);
             });
         }
 
-        // Filter berdasarkan pencarian
         if (searchTerm) {
             processedArticles = processedArticles.filter(article =>
                 article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                article.descriptions.toLowerCase().includes(searchTerm.toLowerCase())
+                article.descriptions.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (article.category && article.category.join(' ').toLowerCase().includes(searchTerm.toLowerCase()))
             );
         }
 
-        // Urutkan dan batasi jika showLatest
         if (showLatest) {
             processedArticles = processedArticles
                 .sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -93,10 +78,15 @@ const ArticleList = ({ articles, title, showFilters = false, showLatest = false,
 
     return (
         <section className="py-12">
+            <SEO
+                title={title}
+                description={`Jelajahi koleksi ${title.toLowerCase()} kami yang informatif dan menarik.`}
+            />
+
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 className="text-3xl font-bold text-center mb-8" data-aos="fade-up">
+                <h1 className="text-3xl font-bold text-center mb-8" data-aos="fade-up">
                     {title}
-                </h2>
+                </h1>
 
                 {showFilters && (
                     <div className="mb-8 relative z-20" data-aos="fade-up" data-aos-delay="100">
@@ -109,10 +99,11 @@ const ArticleList = ({ articles, title, showFilters = false, showLatest = false,
                                 </div>
                                 <input
                                     type="text"
-                                    placeholder="Cari artikel..."
+                                    placeholder="Cari artikel berdasarkan judul, deskripsi, atau kategori..."
                                     className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm transition-all duration-200"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                    aria-label="Cari artikel"
                                 />
                             </div>
 
@@ -124,6 +115,8 @@ const ArticleList = ({ articles, title, showFilters = false, showLatest = false,
                                         <button
                                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                             className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                                            aria-haspopup="true"
+                                            aria-expanded={isDropdownOpen}
                                         >
                                             <span>{selectedCategory || "Semua Kategori"}</span>
                                             <svg
@@ -141,6 +134,8 @@ const ArticleList = ({ articles, title, showFilters = false, showLatest = false,
                                                 <div
                                                     className="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors duration-150"
                                                     onClick={() => handleCategorySelect('')}
+                                                    role="option"
+                                                    aria-selected={!selectedCategory}
                                                 >
                                                     Semua Kategori
                                                 </div>
@@ -149,6 +144,8 @@ const ArticleList = ({ articles, title, showFilters = false, showLatest = false,
                                                         key={category}
                                                         className="px-4 py-2 cursor-pointer hover:bg-blue-50 transition-colors duration-150 capitalize"
                                                         onClick={() => handleCategorySelect(category)}
+                                                        role="option"
+                                                        aria-selected={selectedCategory === category}
                                                     >
                                                         {category}
                                                     </div>
@@ -161,8 +158,9 @@ const ArticleList = ({ articles, title, showFilters = false, showLatest = false,
                                         <button
                                             onClick={clearFilters}
                                             className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors duration-150"
+                                            aria-label="Hapus semua filter"
                                         >
-                                            <span>Clear filters</span>
+                                            <span>Hapus filter</span>
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                             </svg>
@@ -185,7 +183,7 @@ const ArticleList = ({ articles, title, showFilters = false, showLatest = false,
                                                 className="ml-1 rounded-full hover:bg-blue-200 transition-colors duration-150"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18-6M6 6l12 12" />
                                                 </svg>
                                             </button>
                                         </span>

@@ -1,6 +1,8 @@
-// src/components/DynamicCategoryList.jsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { BASE_API } from '../api';
+import { Helmet } from 'react-helmet';
+import { errcategory } from '../data';
 
 const DynamicCategoryList = () => {
     const [categories, setCategories] = useState([]);
@@ -8,36 +10,32 @@ const DynamicCategoryList = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await fetch('https://api-artikel-delta.vercel.app/article');
+                const response = await fetch(`${BASE_API}/article`);
                 const articles = await response.json();
 
-                // Extract and count categories
                 const categoryCount = {};
                 articles.forEach(article => {
                     if (article.category && Array.isArray(article.category)) {
                         article.category.forEach(cat => {
-                            categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+                            if (cat) {
+                                const normalizedCat = cat.toLowerCase();
+                                categoryCount[normalizedCat] = (categoryCount[normalizedCat] || 0) + 1;
+                            }
                         });
                     }
                 });
 
-                // Convert to array and get top 6 categories
                 const categoryArray = Object.keys(categoryCount).map(name => ({
                     name,
-                    count: categoryCount[name]
-                })).sort((a, b) => b.count - a.count).slice(0, 6);
+                    count: categoryCount[name],
+                    slug: encodeURIComponent(name.toLowerCase())
+                })).sort((a, b) => b.count - a.count).slice(0, 3);
 
                 setCategories(categoryArray);
             } catch (error) {
                 console.error('Error fetching categories:', error);
-                // Fallback categories
                 setCategories([
-                    { name: 'tech', count: 3 },
-                    { name: 'sains', count: 2 },
-                    { name: 'lifestyle', count: 5 },
-                    { name: 'education', count: 4 },
-                    { name: 'health', count: 3 },
-                    { name: 'business', count: 2 }
+                    errcategory
                 ]);
             }
         };
@@ -47,9 +45,14 @@ const DynamicCategoryList = () => {
 
     return (
         <section className="py-12 bg-gray-50">
+            <Helmet>
+                <title>Kategori Artikel - ArtikelKu</title>
+                <meta name="description" content="Jelajahi artikel berdasarkan kategori seperti teknologi, sains, lifestyle, edukasi, kesehatan, dan bisnis." />
+            </Helmet>
+
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 className="text-3xl font-bold text-center mb-8" data-aos="fade-up">
-                    Kategori Artikel
+                    Kategori Artikel Terpopuler
                 </h2>
 
                 {categories.length === 0 ? (
@@ -57,11 +60,11 @@ const DynamicCategoryList = () => {
                         <p className="text-gray-500">Belum ada kategori yang tersedia.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {categories.map((category, index) => (
                             <Link
                                 key={category.name}
-                                to={`/category/${category.name}`}
+                                to={`/category/${category.slug}`}
                                 className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
                                 data-aos="fade-up"
                                 data-aos-delay={index * 100}

@@ -1,5 +1,3 @@
-// src/components/ShareButtons.jsx
-
 const ShareButtons = ({ title, url }) => {
     const shareUrl = encodeURIComponent(url || window.location.href);
     const shareText = encodeURIComponent(title);

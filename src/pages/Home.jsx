@@ -2,47 +2,31 @@ import { useState, useEffect } from 'react';
 import ArticleList from '../components/ArticleList';
 import DynamicCategoryList from '../components/DynamicCategoryList';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
+import { fetchArticles } from '../functionality/apiFunctions';
 
 const Home = () => {
     const [articles, setArticles] = useState([]);
     const [featuredArticles, setFeaturedArticles] = useState([]);
 
     useEffect(() => {
-        const fetchArticles = async () => {
-            try {
-                const response = await fetch('https://api-artikel-delta.vercel.app/article');
-                const data = await response.json();
-                setArticles(data);
-
-                setFeaturedArticles(data.slice(0, 3));
-            } catch (error) {
-                console.error('Error fetching articles:', error);
-                const sampleData = [
-                    {
-                        id: "aB3cD7eF9gH",
-                        title: "Cara Membuat Website dengan HTML dan CSS",
-                        images: "https://res.cloudinary.com/dc9q58yts/image/upload/v1756034722/nivoh2ezoxclotgpnp5n.jpg",
-                        descriptions: "Panduan lengkap untuk pemula yang ingin belajar membuat website dari dasar menggunakan HTML dan CSS.",
-                        date: "2025-08-24T11:37:23.645Z"
-                    },
-                    {
-                        id: "q1mkFTlZt9",
-                        title: "Tips Produktivitas Kerja dari Rumah",
-                        images: "https://images.unsplash.com/photo-1589652717521-10c0d092dea9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-                        descriptions: "Bagaimana tetap produktif saat bekerja dari rumah dengan mengatur waktu dan ruang kerja yang nyaman.",
-                        date: "2025-08-23T09:15:10.123Z"
-                    }
-                ];
-                setArticles(sampleData);
-                setFeaturedArticles(sampleData.slice(0, 2));
-            }
+        const loadArticles = async () => {
+            const data = await fetchArticles();
+            setArticles(data);
+            setFeaturedArticles(data.slice(0, 3));
         };
 
-        fetchArticles();
+        loadArticles();
     }, []);
 
     return (
         <div className="pt-16">
+            <SEO
+                title="Temukan Artikel Menarik dan Informatif"
+                description="Platform modern untuk membaca artikel dengan beragam topik menarik. Dapatkan informasi terbaru seputar teknologi, lifestyle, edukasi, dan banyak lagi."
+                keywords="artikel, blog, informasi, teknologi, lifestyle, edukasi, bacaan, psikologi, sejarah"
+            />
+
             <section className="bg-blue-600 text-white py-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h1 className="text-4xl md:text-5xl font-bold mb-6" data-aos="fade-up">
@@ -57,6 +41,7 @@ const Home = () => {
                         className="bg-white text-blue-600 font-semibold py-3 px-6 rounded-lg hover:bg-gray-100 transition-colors duration-200"
                         data-aos="fade-up"
                         data-aos-delay="200"
+                        aria-label="Jelajahi semua artikel di ArtikelKu"
                     >
                         Jelajahi Artikel
                     </Link>

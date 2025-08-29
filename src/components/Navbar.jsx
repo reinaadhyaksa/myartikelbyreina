@@ -1,6 +1,6 @@
-// src/components/Navbar.jsx
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { BASE_API } from '../api';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -11,36 +11,40 @@ const Navbar = () => {
         setIsOpen(false);
     }, [location]);
 
-    // Fetch categories from API
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await fetch('https://api-artikel-delta.vercel.app/article');
+                const response = await fetch(`${BASE_API}/article`);
                 const articles = await response.json();
 
-                // Extract and count categories
                 const categoryCount = {};
                 articles.forEach(article => {
                     if (article.category && Array.isArray(article.category)) {
                         article.category.forEach(cat => {
-                            categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+                            if (cat) {
+                                categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+                            }
                         });
                     }
                 });
 
-                // Convert to array
-                const categoryArray = Object.keys(categoryCount).map(name => ({
-                    name,
-                    count: categoryCount[name]
-                }));
+                // Mengurutkan berdasarkan jumlah artikel terbanyak dan mengambil 3 teratas
+                const categoryArray = Object.keys(categoryCount)
+                    .map(name => ({
+                        name,
+                        count: categoryCount[name]
+                    }))
+                    .sort((a, b) => b.count - a.count) // Urutkan dari yang terbanyak
+                    .slice(0, 3); // Ambil hanya 3 kategori teratas
 
                 setCategories(categoryArray);
             } catch (error) {
                 console.error('Error fetching categories:', error);
-                // Fallback categories
+                // Data fallback juga diubah menjadi 3 kategori teratas
                 setCategories([
-                    { name: 'tech', count: 3 },
-                    { name: 'sains', count: 2 }
+                    { name: 'lifestyle', count: 5 },
+                    { name: 'edukasi', count: 4 },
+                    { name: 'teknologi', count: 3 }
                 ]);
             }
         };
@@ -54,28 +58,32 @@ const Navbar = () => {
                 <div className="flex justify-between h-16">
                     <div className="flex items-center">
                         <Link to="/" className="flex-shrink-0 font-bold text-xl text-blue-600">
-                            ArtikelKu
+                            <span itemProp="name">Chronica</span>
                         </Link>
                     </div>
 
-                    {/* Desktop Menu */}
                     <div className="hidden md:flex items-center space-x-8">
                         <Link
                             to="/"
                             className={`px-3 py-2 rounded-md text-sm font-medium ${location.pathname === '/' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}
+                            aria-current={location.pathname === '/' ? 'page' : undefined}
                         >
-                            Home
+                            Beranda
                         </Link>
                         <Link
                             to="/articles"
                             className={`px-3 py-2 rounded-md text-sm font-medium ${location.pathname === '/articles' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'}`}
+                            aria-current={location.pathname === '/articles' ? 'page' : undefined}
                         >
-                            List Artikel
+                            Semua Artikel
                         </Link>
 
-                        {/* Dropdown Kategori */}
                         <div className="relative group">
-                            <button className={`px-3 py-2 rounded-md text-sm font-medium ${location.pathname === '/categories' ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'} flex items-center`}>
+                            <button
+                                className={`px-3 py-2 rounded-md text-sm font-medium ${location.pathname.startsWith('/category') ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'} flex items-center`}
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                            >
                                 Kategori
                                 <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -83,12 +91,16 @@ const Navbar = () => {
                             </button>
 
                             <div className="absolute right-0 mt-2 w-56 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                                <div className="py-1">
+                                <div className="py-1" role="menu" aria-orientation="vertical">
+                                    <div className="px-4 py-2 text-xs text-gray-500 border-b">
+                                        Kategori Populer
+                                    </div>
                                     {categories.map(category => (
                                         <Link
                                             key={category.name}
-                                            to={`/category/${category.name}`}
+                                            to={`/category/${encodeURIComponent(category.name.toLowerCase())}`}
                                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                                            role="menuitem"
                                         >
                                             <div className="flex justify-between">
                                                 <span className="capitalize">{category.name}</span>
@@ -100,6 +112,7 @@ const Navbar = () => {
                                     <Link
                                         to="/categories"
                                         className="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100 font-medium"
+                                        role="menuitem"
                                     >
                                         Lihat Semua Kategori →
                                     </Link>
@@ -108,11 +121,12 @@ const Navbar = () => {
                         </div>
                     </div>
 
-                    {/* Mobile menu button */}
                     <div className="md:hidden flex items-center">
                         <button
                             onClick={() => setIsOpen(!isOpen)}
                             className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-600 focus:outline-none"
+                            aria-label="Toggle navigation menu"
+                            aria-expanded={isOpen}
                         >
                             <svg
                                 className="h-6 w-6"
@@ -131,29 +145,30 @@ const Navbar = () => {
                     </div>
                 </div>
 
-                {/* Mobile Menu */}
                 {isOpen && (
                     <div className="md:hidden">
                         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
                             <Link
                                 to="/"
                                 className={`block px-3 py-2 rounded-md text-base font-medium ${location.pathname === '/' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'}`}
+                                aria-current={location.pathname === '/' ? 'page' : undefined}
                             >
-                                Home
+                                Beranda
                             </Link>
                             <Link
                                 to="/articles"
                                 className={`block px-3 py-2 rounded-md text-base font-medium ${location.pathname === '/articles' ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'}`}
+                                aria-current={location.pathname === '/articles' ? 'page' : undefined}
                             >
-                                List Artikel
+                                Semua Artikel
                             </Link>
 
                             <div className="pt-2 pb-1">
-                                <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori</p>
-                                {categories.slice(0, 5).map(category => (
+                                <p className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori Populer</p>
+                                {categories.map(category => (
                                     <Link
                                         key={category.name}
-                                        to={`/category/${category.name}`}
+                                        to={`/category/${encodeURIComponent(category.name.toLowerCase())}`}
                                         className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
                                     >
                                         <div className="flex justify-between">
