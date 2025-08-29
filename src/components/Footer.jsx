@@ -7,14 +7,14 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div>
                         <h3 className="text-lg font-semibold mb-4">Chronica</h3>
-                        <p className="text-sm text-gray-300">
+                        <p className="text-sm text-blue-100">
                             Platform modern untuk membaca artikel dengan beragam topik menarik dan informatif.
                         </p>
                     </div>
 
                     <div>
                         <h3 className="text-lg font-semibold mb-4">Tautan Cepat</h3>
-                        <ul className="space-y-2 text-sm text-gray-300">
+                        <ul className="space-y-2 text-sm text-blue-100">
                             <li><a href="/" className="hover:text-white transition-colors">Beranda</a></li>
                             <li><a href="/articles" className="hover:text-white transition-colors">Semua Artikel</a></li>
                             <li><a href="/categories" className="hover:text-white transition-colors">Kategori</a></li>
@@ -23,7 +23,7 @@ const Footer = () => {
 
                     <div>
                         <h3 className="text-lg font-semibold mb-4">Kontak</h3>
-                        <p className="text-sm text-gray-300">
+                        <p className="text-sm text-blue-100">
                             Email: reiadhyaksa@gmail.com<br />
                             WhatsApp: 082313931717
                         </p>
@@ -31,7 +31,7 @@ const Footer = () => {
                 </div>
 
                 <div className="border-t border-blue-500 mt-8 pt-6 text-center">
-                    <p className="text-sm text-gray-300">
+                    <p className="text-sm text-blue-100">
                         © {currentYear} Chronica. All rights reserved.
                     </p>
                 </div>

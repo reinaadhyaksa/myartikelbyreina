@@ -37,9 +37,9 @@ const ArticleCard = ({ article }) => {
                 />
             </div>
             <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2 line-clamp-2 h-14 overflow-hidden" itemProp="headline">
+                <div className="text-xl font-semibold mb-2 line-clamp-2 h-14 overflow-hidden" itemProp="headline">
                     {article.title}
-                </h3>
+                </div>
                 <p className="text-gray-600 mb-4 line-clamp-3 h-18 overflow-hidden" itemProp="description">
                     {article.descriptions}
                 </p>
