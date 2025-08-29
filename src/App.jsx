@@ -39,7 +39,7 @@ function AppContent() {
   if (loading) return <LoadingScreen />;
 
   return (
-    <div className="App">
+    <div className="App overflow-x-hidden">
       <script type="application/ld+json">
         {JSON.stringify(websiteSchema)}
       </script>
