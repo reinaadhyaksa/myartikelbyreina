@@ -21,5 +21,19 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "screenshots": [
+    {
+      "src": "images/screenshots/desktop-1.png",
+      "sizes": "1366x602",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "images/screenshot/desktop-1.png",
+      "sizes": "1366x602",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
   ]
 }
