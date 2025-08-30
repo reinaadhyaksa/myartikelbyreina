@@ -11,18 +11,77 @@ import ArticleDetail from './pages/ArticleDetail';
 import { NotFound } from './pages/NotFound';
 import { LoadingScreen } from './components/LoadingScreen';
 
+// Komponen untuk Install Prompt Button
+const InstallButton = ({ onClick, show }) => {
+  if (!show) return null;
+
+  return (
+    <button
+      onClick={onClick}
+      className="fixed bottom-6 right-6 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-4 rounded-full shadow-lg z-50 flex items-center transition-all duration-300 animate-bounce"
+      aria-label="Install Chronica App"
+    >
+      <i className="fas fa-download mr-2"></i>
+      Install App
+    </button>
+  );
+};
+
 function AppContent() {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallButton, setShowInstallButton] = useState(false);
 
   useEffect(() => {
+    // Handler untuk event beforeinstallprompt
+    const handleBeforeInstallPrompt = (e) => {
+      // Prevent Chrome 67 and earlier from automatically showing the prompt
+      e.preventDefault();
+      // Stash the event so it can be triggered later
+      setDeferredPrompt(e);
+      // Update UI to notify the user they can install the app
+      setShowInstallButton(true);
+
+      // Log untuk debugging
+      console.log('beforeinstallprompt event fired');
+    };
+
+    // Handler untuk event appinstalled
+    const handleAppInstalled = (e) => {
+      // Hide the install button
+      setShowInstallButton(false);
+      setDeferredPrompt(null);
+      console.log('PWA was installed');
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
     setLoading(true);
     const timer = setTimeout(() => {
       setLoading(false);
     }, 800);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
   }, [location]);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+
+    const { outcome } = await deferredPrompt.userChoice;
+
+    setDeferredPrompt(null);
+    setShowInstallButton(false);
+
+    console.log(`User response to the install prompt: ${outcome}`);
+  };
 
   const websiteSchema = {
     "@context": "https://schema.org",
@@ -56,6 +115,7 @@ function AppContent() {
         </Routes>
       </main>
       <Footer />
+      <InstallButton onClick={handleInstallClick} show={showInstallButton} />
     </div>
   );
 }

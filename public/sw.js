@@ -1,14 +1,27 @@
-self.addEventListener('install', (event) => {
-    console.log('Service Worker installing...');
-    // bisa pre-cache aset di sini kalau mau
-});
+const CACHE_NAME = 'chronica-v1';
+const urlsToCache = [
+    '/',
+    '/static/js/bundle.js',
+    '/static/css/index.css',
+    '/site.webmanifest'
+];
 
-self.addEventListener('activate', (event) => {
-    console.log('Service Worker activated.');
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then((cache) => cache.addAll(urlsToCache))
+    );
 });
 
 self.addEventListener('fetch', (event) => {
-    // Bisa diubah untuk cache first atau network first
-    // Default: hanya log
-    console.log('Fetching:', event.request.url);
+    event.respondWith(
+        caches.match(event.request)
+            .then((response) => {
+                if (response) {
+                    return response;
+                }
+                return fetch(event.request);
+            }
+            )
+    );
 });
