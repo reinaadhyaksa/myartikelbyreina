@@ -12,31 +12,58 @@ import { NotFound } from './pages/NotFound';
 import { LoadingScreen } from './components/LoadingScreen';
 
 function AppContent() {
-  const [data, setData] = useState([])
+  const [data, setData] = useState([]);
   const location = useLocation();
   const [loading, setLoading] = useState(true);
 
+  // 👉 state khusus PWA install
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [canInstall, setCanInstall] = useState(false);
+
   useEffect(() => {
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      deferredPrompt = e;
+    // Tangkap event beforeinstallprompt
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setCanInstall(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+
+    window.addEventListener('appinstalled', () => {
+      console.log("✅ Aplikasi berhasil diinstall");
+      setDeferredPrompt(null);
+      setCanInstall(false);
     });
-    getData()
-  }, [])
+
+    getData();
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+    };
+  }, []);
 
   useEffect(() => {
     setLoading(true);
     const timer = setTimeout(() => {
       setLoading(false);
     }, 800);
-
     return () => clearTimeout(timer);
   }, [location]);
 
   async function getData() {
-    let res = await (await fetch('https://jsonplaceholder.typicode.com/todos/')).json()
-    if (res != undefined) setData(res)
+    let res = await (await fetch('https://jsonplaceholder.typicode.com/todos/')).json();
+    if (res !== undefined) setData(res);
   }
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log("Pilihan user:", outcome); // "accepted" atau "dismissed"
+    setDeferredPrompt(null);
+    setCanInstall(false);
+  };
 
   const websiteSchema = {
     "@context": "https://schema.org",
@@ -68,6 +95,18 @@ function AppContent() {
           <Route path="/article/:id" element={<ArticleDetail />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+
+        {/* 👉 tombol install akan muncul kalau available */}
+        {canInstall && (
+          <div className="flex justify-center my-4">
+            <button
+              onClick={handleInstallClick}
+              className="bg-orange-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-orange-700"
+            >
+              📥 Install App
+            </button>
+          </div>
+        )}
       </main>
       <Footer />
     </div>
