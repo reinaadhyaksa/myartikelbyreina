@@ -27,15 +27,13 @@
       "src": "/screenshot/desktop-1.png",
       "sizes": "1366x602",
       "type": "image/png",
-      "form_factor": "wide",
-      "label": "Halaman Beranda Chronica"
+      "form_factor": "wide"
     },
     {
       "src": "/screenshot/desktop-1.png",
       "sizes": "1366x602",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Tampilan Mobile Chronica"
+      "form_factor": "narrow"
     }
   ]
 }
