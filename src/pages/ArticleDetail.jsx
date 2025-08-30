@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ShareButtons from '../components/ShareButtons';
 import SEO from '../components/SEO';
+import ArticleContent from '../components/ArticleContent';
+import ArticleActions from '../components/ArticleActions';
+import RelatedArticles from '../components/RelatedArticles';
+import { LoadingScreen } from '../components/LoadingScreen';
+import { NotFoundArticles } from './NotFound';
 import {
     fetchArticleById,
     fetchArticles,
@@ -9,16 +14,17 @@ import {
     optimizeCloudinaryImage,
     generateImageAltText,
     formatDate,
-    getIconClass,
     generateMetaDescription
 } from '../functionality/apiFunctions';
 import { generateBreadcrumbSchema } from '../functionality/schemaGenerators';
+import { usePDFDownload } from '../functionality/usePDFDownload';
 
 const ArticleDetail = () => {
     const { id } = useParams();
     const [article, setArticle] = useState(null);
     const [loading, setLoading] = useState(true);
     const [relatedArticles, setRelatedArticles] = useState([]);
+    const { downloadPDF, downloading } = usePDFDownload();
 
     useEffect(() => {
         const loadArticle = async () => {
@@ -41,25 +47,18 @@ const ArticleDetail = () => {
         loadArticle();
     }, [id]);
 
+    const handleDownloadPDF = () => {
+        if (article) {
+            downloadPDF(article);
+        }
+    };
+
     if (loading) {
-        return (
-            <div className="pt-20 min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     if (!article) {
-        return (
-            <div className="pt-20 min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <h1 className="text-2xl font-bold mb-4">Artikel tidak ditemukan</h1>
-                    <Link to="/articles" className="text-blue-600 hover:underline">
-                        Kembali ke daftar artikel
-                    </Link>
-                </div>
-            </div>
-        );
+        return <NotFoundArticles />;
     }
 
     const optimizedImageUrl = optimizeCloudinaryImage(article.images);
@@ -86,145 +85,168 @@ const ArticleDetail = () => {
 
             <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12" itemScope itemType="https://schema.org/Article">
                 <div className="bg-white p-8 rounded-lg shadow-md">
-                    <nav aria-label="Breadcrumb" className="mb-6">
-                        <ol className="flex items-center space-x-2 text-sm text-gray-600">
-                            <li>
-                                <Link to="/" className="hover:text-blue-600">Home</Link>
-                            </li>
-                            <li className="flex items-center">
-                                <span className="mx-2">/</span>
-                                <Link to="/articles" className="hover:text-blue-600">Artikel</Link>
-                            </li>
-                            {article.category && article.category.length > 0 && (
-                                <>
-                                    <li className="flex items-center">
-                                        <span className="mx-2">/</span>
-                                        <Link
-                                            to={`/category/${encodeURIComponent(article.category[0].toLowerCase())}`}
-                                            className="hover:text-blue-600 capitalize"
-                                        >
-                                            {article.category[0]}
-                                        </Link>
-                                    </li>
-                                </>
-                            )}
-                            <li className="flex items-center">
-                                <span className="mx-2">/</span>
-                                <span className="text-gray-800 font-medium" aria-current="page">
-                                    {article.title.length > 30 ? article.title.substring(0, 30) + '...' : article.title}
-                                </span>
-                            </li>
-                        </ol>
-                    </nav>
+                    <Breadcrumb article={article} />
 
-                    <h1 className="text-3xl md:text-4xl font-bold mb-4" data-aos="fade-up" itemProp="headline">
-                        {article.title}
-                    </h1>
+                    <ArticleContent
+                        article={article}
+                        optimizedImageUrl={optimizedImageUrl}
+                        imageAltText={imageAltText}
+                    />
 
-                    <div className="text-gray-600 mb-4 gap-2" data-aos="fade-up" data-aos-delay="100">
-                        <div className="flex items-center gap-2">
-                            <time dateTime={article.date} itemProp="datePublished">
-                                {formatDate(article.date)}
-                            </time>
-                        </div>
-                    </div>
-
-                    {optimizedImageUrl && (
-                        <div className="mb-8 rounded-xl overflow-hidden" data-aos="fade-up" data-aos-delay="200">
-                            <img
-                                src={optimizedImageUrl}
-                                alt={imageAltText}
-                                className="w-full h-64 md:h-96 object-cover"
-                                loading="lazy"
-                                itemProp="image"
-                            />
-                        </div>
-                    )}
-
-                    <div className="prose max-w-none" data-aos="fade-up" data-aos-delay="300" itemProp="articleBody">
-                        {article.descriptions && (
-                            <p className="text-gray-700 leading-relaxed mb-6 text-lg font-medium" itemProp="description">
-                                {article.descriptions}
-                            </p>
-                        )}
-
-                        {article.contents && article.contents.map((section, index) => (
-                            <div key={index}>
-                                {section.subtitle && (
-                                    <h2 className="text-xl font-semibold mt-6 mb-3">{section.subtitle}</h2>
-                                )}
-                                <p className="text-gray-700 leading-relaxed mb-4">
-                                    {section.content}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="mt-8 flex flex-wrap gap-2" data-aos="fade-up" data-aos-delay="100">
-                        <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm">
-                            Made with AI
-                        </span>
-                    </div>
-
-                    <div className="mt-4 flex flex-wrap gap-2" data-aos="fade-up" data-aos-delay="100">
-                        {article.category && article.category.map((cat, i) => (
-                            <Link
-                                to={`/category/${encodeURIComponent(cat.toLowerCase())}`}
-                                key={i}
-                                className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm hover:bg-blue-100 transition-colors"
-                                itemProp="keywords"
-                            >
-                                {cat}
-                            </Link>
-                        ))}
-                    </div>
+                    <ArticleMetadata article={article} />
 
                     <ShareButtons
                         title={article.title}
                         url={window.location.href}
                     />
 
-                    {article.references && article.references.length > 0 && (
-                        <div className="mt-8 border-t pt-6">
-                            <h2 className="text-lg font-semibold mb-3">Sumber Referensi</h2>
-                            <div className="flex flex-col gap-2">
-                                {article.references.map((ref, idx) => (
-                                    <a
-                                        key={idx}
-                                        href={ref.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer nofollow"
-                                        className="flex items-center gap-2 text-blue-600 hover:underline"
-                                    >
-                                        <i className={`${getIconClass(ref.url)} text-lg`}></i>
-                                        <span>{ref.title}</span>
-                                    </a>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    <ArticleActions
+                        onDownloadPDF={handleDownloadPDF}
+                        downloading={downloading}
+                    />
 
-                    {relatedArticles.length > 0 && (
-                        <div className="mt-12 border-t pt-6">
-                            <h2 className="text-xl font-semibold mb-4">Artikel Terkait</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                {relatedArticles.map(related => (
-                                    <Link
-                                        key={related.id}
-                                        to={`/article/${related.id}`}
-                                        className="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors"
-                                    >
-                                        <h3 className="font-medium mb-2 line-clamp-2">{related.title}</h3>
-                                        <p className="text-sm text-gray-600 line-clamp-2">{related.descriptions}</p>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    <RelatedArticles articles={relatedArticles} />
                 </div>
             </article>
         </div>
     );
 };
+
+const Breadcrumb = ({ article }) => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    if (!isMobile) {
+        return (
+            <nav aria-label="Breadcrumb" className="mb-6">
+                <ol className="flex items-center space-x-1 text-sm">
+                    <li className="flex items-center">
+                        <Link
+                            to="/"
+                            className="flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            Home
+                        </Link>
+                    </li>
+                    <li className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mx-1.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                        <Link to="/articles" className="text-blue-600 hover:text-blue-800 transition-colors duration-200">
+                            Artikel
+                        </Link>
+                    </li>
+                    {article.category && article.category.length > 0 && (
+                        <li className="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mx-1.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                            <Link
+                                to={`/category/${encodeURIComponent(article.category[0].toLowerCase())}`}
+                                className="text-blue-600 hover:text-blue-800 transition-colors duration-200 capitalize"
+                            >
+                                {article.category[0]}
+                            </Link>
+                        </li>
+                    )}
+                    <li className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mx-1.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                        <span className="text-gray-600 font-medium truncate max-w-xs" aria-current="page">
+                            {article.title}
+                        </span>
+                    </li>
+                </ol>
+            </nav>
+        );
+    }
+
+    return (
+        <nav aria-label="Breadcrumb" className="mb-6">
+            <ol className="flex items-center space-x-1 text-sm">
+                <li className="flex items-center">
+                    <Link
+                        to="/"
+                        className="flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                    </Link>
+                </li>
+                <li className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mx-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                    <Link to="/articles" className="text-blue-600 hover:text-blue-800 transition-colors duration-200">
+                        <span className="sr-only">Artikel</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                        </svg>
+                    </Link>
+                </li>
+                {article.category && article.category.length > 0 && (
+                    <li className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mx-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                        <Link
+                            to={`/category/${encodeURIComponent(article.category[0].toLowerCase())}`}
+                            className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                        >
+                            <span className="sr-only">{article.category[0]}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                            </svg>
+                        </Link>
+                    </li>
+                )}
+                <li className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mx-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                    <span className="text-gray-600 font-medium truncate max-w-[120px]" aria-current="page">
+                        {article.title}
+                    </span>
+                </li>
+            </ol>
+        </nav>
+    );
+};
+
+const ArticleMetadata = ({ article }) => (
+    <>
+        <div className="mt-8 flex flex-wrap gap-2" data-aos="fade-up" data-aos-delay="100">
+            <span className="px-3 py-1 bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700 rounded-lg text-sm font-medium shadow-sm">
+                Made with AI
+            </span>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2" data-aos="fade-up" data-aos-delay="100">
+            {article.category && article.category.map((cat, i) => (
+                <Link
+                    to={`/category/${encodeURIComponent(cat.toLowerCase())}`}
+                    key={i}
+                    className="px-3 py-1 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 rounded-lg text-sm font-medium hover:from-blue-100 hover:to-blue-200 transition-all duration-200 shadow-sm"
+                    itemProp="keywords"
+                >
+                    {cat}
+                </Link>
+            ))}
+        </div>
+    </>
+);
 
 export default ArticleDetail;

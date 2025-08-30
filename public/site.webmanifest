@@ -1,21 +1,41 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "name": "Chronica - Platform Membaca Artikel Modern",
+  "short_name": "Chronica",
+  "description": "Temukan artikel menarik dan informatif seputar teknologi, lifestyle, edukasi, dan banyak lagi. Platform membaca artikel modern dengan desain responsif.",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#d97706",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
-      "sizes": "192x192",
       "type": "image/png",
+      "sizes": "192x192",
       "purpose": "maskable"
     },
     {
       "src": "/web-app-manifest-512x512.png",
-      "sizes": "512x512",
       "type": "image/png",
+      "sizes": "512x512",
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  "screenshots": [
+    {
+      "src": "/screenshot/desktop-1.png",
+      "sizes": "1366x602",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Halaman Beranda Chronica"
+    },
+    {
+      "src": "/screenshot/desktop-1.png",
+      "sizes": "1366x602",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tampilan Mobile Chronica"
+    }
+  ]
 }

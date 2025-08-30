@@ -8,7 +8,7 @@ import Articles from './pages/Articles';
 import Categories from './pages/Categories';
 import Category from './pages/Category';
 import ArticleDetail from './pages/ArticleDetail';
-import NotFound from './pages/NotFound';
+import { NotFound } from './pages/NotFound';
 import { LoadingScreen } from './components/LoadingScreen';
 
 function AppContent() {

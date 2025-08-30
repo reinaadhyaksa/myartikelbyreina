@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-const NotFound = () => {
+export const NotFound = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
             <div className="text-center">
@@ -20,4 +20,15 @@ const NotFound = () => {
     );
 };
 
-export default NotFound;
+export const NotFoundArticles = () => {
+    return (
+        <div className="pt-20 min-h-screen flex items-center justify-center">
+            <div className="text-center">
+                <h1 className="text-2xl font-bold mb-4">Artikel tidak ditemukan</h1>
+                <Link to="/articles" className="text-blue-600 hover:underline">
+                    Kembali ke daftar artikel
+                </Link>
+            </div>
+        </div>
+    );
+};
