@@ -1,6 +1,53 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), VitePWA({
+    workbox: {
+      globPatterns: ["**/*"],
+    },
+    includeAssets: [
+      "**/*",
+    ],
+    manifest: {
+      "id": "/",
+      "start_url": "/",
+      "scope": "/",
+      "name": "Chronica - Platform Membaca Artikel Modern",
+      "short_name": "Chronica",
+      "description": "Temukan artikel menarik dan informatif seputar teknologi, lifestyle, edukasi, dan banyak lagi. Platform membaca artikel modern dengan desain responsif.",
+      "display": "standalone",
+      "background_color": "#FFFFFF",
+      "theme_color": "#d97706",
+      "icons": [
+        {
+          "src": "/web-app-manifest-192x192.png",
+          "type": "image/png",
+          "sizes": "192x192",
+          "purpose": "maskable"
+        },
+        {
+          "src": "/web-app-manifest-512x512.png",
+          "type": "image/png",
+          "sizes": "512x512",
+          "purpose": "maskable"
+        }
+      ],
+      "screenshots": [
+        {
+          "src": "/screenshot/desktop-1.png",
+          "sizes": "1366x602",
+          "type": "image/png",
+          "form_factor": "wide"
+        },
+        {
+          "src": "/screenshot/desktop-1.png",
+          "sizes": "1366x602",
+          "type": "image/png",
+          "form_factor": "narrow"
+        }
+      ]
+    }
+  })],
 })
