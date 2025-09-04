@@ -46,7 +46,7 @@ const DynamicCategoryList = () => {
     return (
         <section className="py-12 bg-gray-50">
             <Helmet>
-                <title>Kategori Artikel - ArtikelKu</title>
+                <title>Kategori Artikel - Chronica</title>
                 <meta name="description" content="Jelajahi artikel berdasarkan kategori seperti teknologi, sains, lifestyle, edukasi, kesehatan, dan bisnis." />
             </Helmet>
 

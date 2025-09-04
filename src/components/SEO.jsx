@@ -47,7 +47,7 @@ const SEO = ({
         },
         publisher: {
             '@type': 'Organization',
-            name: 'ArtikelKu',
+            name: 'Chronica',
             logo: {
                 '@type': 'ImageObject',
                 url: 'https://chronica-rho.vercel.app/logo.png',
@@ -73,7 +73,7 @@ const SEO = ({
             <meta property="og:title" content={seo.title} />
             <meta property="og:description" content={seo.description} />
             <meta property="og:image" content={seo.image} />
-            <meta property="og:site_name" content="ArtikelKu" />
+            <meta property="og:site_name" content="Chronica" />
 
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:creator" content={twitterHandle} />

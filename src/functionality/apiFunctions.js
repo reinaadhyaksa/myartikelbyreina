@@ -117,5 +117,5 @@ export const generateMetaDescription = (article) => {
             : firstContent;
     }
 
-    return `Baca artikel tentang ${article.title} di ArtikelKu.`;
+    return `Baca artikel tentang ${article.title} di Chronica.`;
 };

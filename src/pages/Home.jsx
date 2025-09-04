@@ -41,7 +41,7 @@ const Home = () => {
                         className="bg-white text-blue-600 font-semibold py-3 px-6 rounded-lg hover:bg-gray-100 transition-colors duration-200"
                         data-aos="fade-up"
                         data-aos-delay="200"
-                        aria-label="Jelajahi semua artikel di ArtikelKu"
+                        aria-label="Jelajahi semua artikel di Chronica"
                     >
                         Jelajahi Artikel
                     </Link>
